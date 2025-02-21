@@ -2,11 +2,13 @@
 # mdnum - Markdown Numbered Headings
 
 
+## 1. Install
 
-## Usage
+Download Linux/amd64 or windows/amd64 binary from here:
+https://github.com/cvilsmeier/mdnum/releases/latest
 
 
-## Usage
+## 2. Usage
 
 ~~~
 mdnum is a tool for generating numbered headings for markdown
@@ -36,7 +38,7 @@ Example:
 ~~~
 
 
-## Build
+## 3. Build
 
 You'll need Go installed: https://go.dev
 
