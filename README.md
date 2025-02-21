@@ -2,7 +2,7 @@
 # mdnum - Markdown Numbered Headings
 
 
-## 1. Install
+## 1. Download
 
 Download Linux/amd64 or windows/amd64 binary from here:
 https://github.com/cvilsmeier/mdnum/releases/latest
