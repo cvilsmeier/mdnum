@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -31,20 +31,27 @@ Example:
     # 1. Chapter 1
     ## 1.1. Intro
     ## 1.2. Outro
+
 `
 
 func main() {
-	log.SetFlags(0)
-	log.SetOutput(os.Stdout)
 	flag.Usage = func() {
-		log.Print(usage)
+		fmt.Print(usage)
 	}
 	flag.Parse()
 	filename := flag.Arg(0)
 	if filename == "" {
-		log.Print(usage)
+		fmt.Println("error: missing FILE")
+		fmt.Println("")
+		fmt.Print(usage)
 		os.Exit(2)
 	}
+	input := readInput(filename)
+	output := Convert(input)
+	writeOutput(output, filename)
+}
+
+func readInput(filename string) string {
 	var input []byte
 	var err error
 	if filename == "-" {
@@ -53,58 +60,56 @@ func main() {
 		input, err = os.ReadFile(filename)
 	}
 	if err != nil {
-		log.Fatal(err)
+		fatal(err)
 	}
-	output := convert(string(input))
+	return string(input)
+}
+
+func writeOutput(output, filename string) {
 	if filename == "-" {
-		log.Print(output)
-	} else {
-		err = os.WriteFile(filename, []byte(output), 0644)
+		fmt.Print(output)
+		return
 	}
-	if err != nil {
-		log.Fatal(err)
+	if err := os.WriteFile(filename, []byte(output), 0644); err != nil {
+		fatal(err)
 	}
 }
 
-func convert(input string) string {
-	builder := NewBuilder()
-	for _, line := range splitLines(input) {
-		builder.Add(line)
+func fatal(v ...any) {
+	fmt.Println(v...)
+	os.Exit(1)
+}
+
+func Convert(input string) string {
+	builder := newBuilder()
+	var lineBuf strings.Builder
+	for _, r := range input {
+		lineBuf.WriteRune(r)
+		if r == '\n' {
+			builder.addLine(lineBuf.String())
+			lineBuf.Reset()
+		}
+	}
+	if lineBuf.Len() > 0 {
+		builder.addLine(lineBuf.String())
 	}
 	return builder.Finish()
 }
 
-func splitLines(text string) []string {
-	var lines []string
-	var buf strings.Builder
-	for _, r := range text {
-		buf.WriteRune(r)
-		if r == '\n' {
-			lines = append(lines, buf.String())
-			buf.Reset()
-		}
-	}
-	if buf.Len() > 0 {
-		lines = append(lines, buf.String())
-	}
-	return lines
-}
-
 type Builder struct {
-	b *strings.Builder
-	n []int
+	output  *strings.Builder
+	numbers []int
 }
 
-func NewBuilder() *Builder {
+func newBuilder() *Builder {
 	return &Builder{&strings.Builder{}, []int{0, 0, 0, 0, 0, 0}}
 }
 
-func (b *Builder) Add(line string) {
-	b.b.WriteString(b.convert(line))
-	// b.b.WriteString("\n")
+func (b *Builder) addLine(line string) {
+	b.output.WriteString(b.convertLine(line))
 }
 
-func (b *Builder) convert(line string) string {
+func (b *Builder) convertLine(line string) string {
 	if !strings.HasPrefix(line, "#") {
 		return line
 	}
@@ -141,15 +146,15 @@ func (b *Builder) renumber(numbering string) (string, bool) {
 		return orig, false
 	}
 	numbering = ""
-	b.n[level]++
-	for i := level + 1; i < len(b.n); i++ {
-		b.n[i] = 0
+	b.numbers[level]++
+	for i := level + 1; i < len(b.numbers); i++ {
+		b.numbers[i] = 0
 	}
 	for i := range level + 1 {
-		if b.n[i] == 0 {
-			b.n[i] = 1
+		if b.numbers[i] == 0 {
+			b.numbers[i] = 1
 		}
-		numbering += strconv.Itoa(b.n[i]) + "."
+		numbering += strconv.Itoa(b.numbers[i]) + "."
 	}
 	return numbering, true
 }
@@ -166,5 +171,5 @@ func (b *Builder) splitHeading(line string) (string, string, string, bool) {
 }
 
 func (b *Builder) Finish() string {
-	return b.b.String()
+	return b.output.String()
 }
