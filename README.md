@@ -51,6 +51,10 @@ go install github.com/cvilsmeier/mdnum@latest
 ## 4. Changelog
 
 
+### v1.0.1
+
+- fix module name
+
 ### v1.0.0
 
 - first version
