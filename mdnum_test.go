@@ -50,9 +50,36 @@ func TestSplitLines(t *testing.T) {
 func TestBuilder(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		b := NewBuilder()
+		have := b.Finish()
+		want := ""
+		if have != want {
+			t.Fatalf("\nwant %q\nhave %q", want, have)
+		}
+	})
+	t.Run("oneEmptyLine", func(t *testing.T) {
+		b := NewBuilder()
+		b.Add("")
+		have := b.Finish()
+		want := ""
+		if have != want {
+			t.Fatalf("\nwant %q\nhave %q", want, have)
+		}
+	})
+	t.Run("oneEmptyLineWithNewline", func(t *testing.T) {
+		b := NewBuilder()
+		b.Add("\n")
+		have := b.Finish()
+		want := "\n"
+		if have != want {
+			t.Fatalf("\nwant %q\nhave %q", want, have)
+		}
+	})
+	t.Run("emptyLines", func(t *testing.T) {
+		b := NewBuilder()
 		b.Add("\n")
 		b.Add("\n")
 		b.Add("\n")
+		b.Add("")
 		want := "\n" +
 			"\n" +
 			"\n"
