@@ -1,3 +1,3 @@
-module mdnum
+module github.com/cvilsmeier/mdnum
 
 go 1.24

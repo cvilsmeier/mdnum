@@ -43,7 +43,7 @@ Example:
 You'll need Go installed: https://go.dev
 
 ~~~
-go install github.com/cvilsmeier/mdnum
+go install github.com/cvilsmeier/mdnum@latest
 ~~~
 
 
